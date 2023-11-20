@@ -1,14 +1,18 @@
 import fastify from "fastify"
 // @ts-ignore
 import manifest from "./../package.json"
+import {timelineChart} from "./chart/timeline";
 
-const server = fastify()
+const server = fastify({
+    logger: true
+})
 
 server.get("/", async (request, reply) => {
-    reply.send({
-        name: manifest.name,
-        version: manifest.version
-    })
+    return reply.header("Content-Type", "image/svg+xml").send(await timelineChart(32))
+})
+
+server.get("/test", async (request, reply) => {
+    return reply.header("Content-Type", "text/html").send(`<img src="http://0.0.0.0:8080/" alt="test"/>`)
 })
 
 server.listen({
