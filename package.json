@@ -3,6 +3,7 @@
   "version": "2023.11.1",
   "description": "Image generator for fStats",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "tsc -p tsconfig.json && node ./dist/index.js",
@@ -11,7 +12,12 @@
   "author": "Syorito Hatsuki",
   "license": "MIT",
   "dependencies": {
-    "fastify": "^4.24.3"
+    "axios": "^1.6.2",
+    "chart.js": "^3.5.1",
+    "chartjs-adapter-moment": "^1.0.1",
+    "chartjs-node-canvas": "^4.1.6",
+    "fastify": "^4.24.3",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@types/node": "^20.9.2",
