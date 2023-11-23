@@ -21,7 +21,7 @@ server.register(
 )
 
 server.get("/", async (_, reply) => {
-    reply.send({
+    reply.header("Content-Type", "application/json").send({
         service: {
             name: manifest.name,
             version: manifest.version
