@@ -1,4 +1,4 @@
-import {LineMetric, Timeline} from "./types";
+import {LineMetric} from "./types";
 import axios from "axios";
 
 const host = "https://api.fstats.dev/v2/"
