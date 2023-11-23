@@ -4,6 +4,7 @@ import fastify from "fastify"
 import manifest from "./../package.json"
 import {timelineChart} from "./chart/timeline";
 import {Modes, Theme} from "./util/types";
+import fastifyCaching from "@fastify/caching";
 
 dotenv.config()
 
@@ -11,7 +12,16 @@ const server = fastify({
     logger: true
 })
 
-server.get("/", async (request, reply) => {
+server.register(
+    fastifyCaching,
+    {
+        privacy: fastifyCaching.privacy.PUBLIC,
+        expiresIn: 1800,
+        serverExpiresIn: 1800
+    }
+)
+
+server.get("/", async (_, reply) => {
     reply.send({
         route: "/timeline/:id",
         params: {
