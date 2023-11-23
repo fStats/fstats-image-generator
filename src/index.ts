@@ -60,8 +60,8 @@ server.get<{
 })
 
 server.listen({
-    port: Number(process.env.PORT),
-    host: process.env.HOST
+    port: Number(process.env.PORT) || 1540,
+    host: process.env.HOST || "0.0.0.0"
 }, (err, address) => {
     if (err) {
         console.error(err)
