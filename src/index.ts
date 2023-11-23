@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
 import fastify from "fastify"
-// @ts-ignore
 import manifest from "./../package.json"
 import {timelineChart} from "./chart/timeline";
 import {Modes, Theme} from "./util/types";
@@ -23,6 +22,10 @@ server.register(
 
 server.get("/", async (_, reply) => {
     reply.send({
+        service: {
+            name: manifest.name,
+            version: manifest.version
+        },
         route: "/timeline/:id",
         params: {
             "id": "integer"
