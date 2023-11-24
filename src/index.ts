@@ -57,7 +57,6 @@ server.get<{
     if (!Number.isInteger(id)) throw new Error("Invalid id")
 
     const {mode, width, height, theme, format} = request.query
-    const imageFormat = format
 
     await timelineChart(id, mode, Number(width || 800), Number(height || 300), theme || "dark").then(svgBuffer => {
         console.log(svgBuffer)

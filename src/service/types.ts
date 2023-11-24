@@ -1,4 +1,3 @@
-
 export interface LineMetric {
     project: Project,
     metric_line: Timeline
