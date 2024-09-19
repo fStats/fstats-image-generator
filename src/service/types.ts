@@ -1,19 +1,22 @@
 export interface LineMetric {
-    project: Project,
-    metric_line: Timeline
+    timestamps: number[];
+    counts: number[];
 }
 
-export interface Project {
-    id: number,
-    name: string,
-    owner: User
+export interface TimelineData {
+    readonly x: number;
+    readonly y: number;
 }
 
 export interface User {
-    id: number,
-    username: string
+    id?: number;
+    username: string;
+    password: string;
 }
 
-export interface Timeline {
-    [value: string]: number;
+export interface Project {
+    id?: number;
+    name: string;
+    is_visible?: boolean;
+    owner?: User;
 }

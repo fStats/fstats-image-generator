@@ -1,11 +1,12 @@
 import {ChartJSNodeCanvas} from "chartjs-node-canvas";
 import "chartjs-adapter-moment";
-import {getLineMetric} from "../service/api";
+import {getLineMetric, getProject} from "../service/api";
 import {timeLimit, timeUnit} from "../util/mode";
 import {Modes, Theme} from "../util/types";
 
 export const timelineChart = async (projectId: number, mode: Modes, width: number, height: number, theme: Theme): Promise<Buffer> => {
 
+    const project = await getProject(projectId)
     const lineMetric = await getLineMetric(projectId)
 
     return new ChartJSNodeCanvas({
@@ -21,10 +22,7 @@ export const timelineChart = async (projectId: number, mode: Modes, width: numbe
         data: {
             datasets: [
                 {
-                    data: Object.entries(lineMetric.metric_line).map(value => ({
-                        x: new Date(value[0]).valueOf(),
-                        y: value[1]
-                    })),
+                    data: lineMetric,
                     label: "Server count",
                     borderColor: theme === "dark" ? "rgb(231, 76, 60)" : "rgb(52, 152, 219)",
                     spanGaps: 1000 * 60 * 30,
@@ -56,7 +54,7 @@ export const timelineChart = async (projectId: number, mode: Modes, width: numbe
             plugins: {
                 title: {
                     display: true,
-                    text: lineMetric.project.name,
+                    text: project.name,
                     font: {
                         size: 20,
                         style: "normal"
