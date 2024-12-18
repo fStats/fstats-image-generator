@@ -1,6 +1,6 @@
 import {FastifyInstance} from "fastify";
 import {Format, Modes, Theme} from "../../util/types";
-import {timelineChart} from "../../chart/timeline";
+import {timelineChart} from "../../util/chart/timeline";
 import svg2img from "svg2img";
 
 export const timelineById = (server: FastifyInstance) => server.get<{

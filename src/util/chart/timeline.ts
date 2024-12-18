@@ -1,8 +1,8 @@
 import {ChartJSNodeCanvas} from "chartjs-node-canvas";
 import "chartjs-adapter-moment";
-import {getLineMetric, getProject} from "../service/api";
-import {timeLimit, timeUnit} from "../util/mode";
-import {Modes, Theme} from "../util/types";
+import {getLineMetric, getProject} from "../../service/api";
+import {timeLimit, timeUnit} from "../mode";
+import {Modes, Theme} from "../types";
 
 export const timelineChart = async (projectId: number, mode: Modes, width: number, height: number, theme: Theme): Promise<Buffer> => {
 
