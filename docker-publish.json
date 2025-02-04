@@ -1,0 +1,21 @@
+{
+  "localImageName": "${PACKAGE_NAME}",
+  "tags": [
+    "latest",
+    "${PACKAGE_VERSION}"
+  ],
+  "portMappings": [
+    {
+      "hostPort": 1540,
+      "containerPort": 1540,
+      "protocol": "tcp"
+    }
+  ],
+  "externalRegistry": {
+    "username": "${DOCKER_USERNAME}",
+    "password": "${DOCKER_PASSWORD}",
+    "project": "${PACKAGE_NAME}",
+    "hostname": "${DOCKER_HOSTNAME}",
+    "namespace": "fstats"
+  }
+}
