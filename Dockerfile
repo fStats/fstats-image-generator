@@ -1,16 +1,20 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-ENV NODE_ENV development
+ENV NODE_ENV=production
 
-COPY package.json /app
+RUN apt-get update && apt-get install -y \
+    python3 make g++ libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache python3 make g++ pixman-dev cairo-dev pango-dev jpeg-dev giflib-dev pkgconf && \
-    npm install
+COPY package.json package-lock.json /app/
+RUN npm install
 
 COPY . /app
 
-EXPOSE 1540
+RUN npm run build
 
-CMD [ "node", "index.js" ]
+EXPOSE 1542
+
+CMD ["node", "./dist/index.js"]
