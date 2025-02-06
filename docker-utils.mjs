@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import {execSync} from 'child_process';
-import * as path from 'path';
+import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -54,7 +54,7 @@ async function main() {
     console.log('Docker image built and published successfully.');
 }
 
-function replacePlaceholders(obj: any, packageData: any, env: NodeJS.ProcessEnv): any {
+function replacePlaceholders(obj, packageData, env) {
     if (typeof obj === 'string') {
         return obj.replace(/\$\{([^}]+)}/g, (_, key) => {
             if (key.startsWith('PACKAGE_')) {
@@ -68,7 +68,7 @@ function replacePlaceholders(obj: any, packageData: any, env: NodeJS.ProcessEnv)
     } else if (Array.isArray(obj)) {
         return obj.map(item => replacePlaceholders(item, packageData, env));
     } else if (obj && typeof obj === 'object') {
-        const newObj: any = {};
+        const newObj = {};
         for (const prop in obj) {
             newObj[prop] = replacePlaceholders(obj[prop], packageData, env);
         }
