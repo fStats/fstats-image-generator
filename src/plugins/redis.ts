@@ -5,4 +5,5 @@ import fastifyRedis from "@fastify/redis";
 export const redis = (server: FastifyInstance) => server.register(fastifyRedis, {
     host: process.env.REDIS_HOST || "127.0.0.1",
     port: process.env.REDIS_PORT || 6379,
+    password: process.env.REDIS_PASSWORD,
 })
