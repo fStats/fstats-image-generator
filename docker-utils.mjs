@@ -24,7 +24,7 @@ async function main() {
 
     const primaryTag = tags[0];
     console.log(`Building docker image ${localImageName}:${primaryTag}`);
-    execSync(`docker build -t ${localImageName}:${primaryTag} .`, {stdio: 'inherit'});
+    execSync(`docker build --no-cache -t ${localImageName}:${primaryTag} .`, {stdio: 'inherit'});
 
     for (const tag of tags) {
         if (tag !== primaryTag) {
