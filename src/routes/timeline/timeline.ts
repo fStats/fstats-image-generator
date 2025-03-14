@@ -76,7 +76,7 @@ export const timelineById = (server: FastifyInstance) => server.get<{
     }
 }, async (request, reply) => {
     const id = Number(request.params.id)
-    if (!Number.isInteger(id)) throw new Error("Invalid id")
+    if (!Number.isInteger(id) && id > 0) throw new Error("Invalid id")
     const {mode, width, height, theme, format} = request.query
 
     await timelineChart(id, mode, Number(width || 800), Number(height || 300), theme || "dark")
