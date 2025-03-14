@@ -76,11 +76,38 @@ export const timelineById = (server: FastifyInstance) => server.get<{
     }
 }, async (request, reply) => {
     const id = Number(request.params.id)
-    if (!Number.isInteger(id) && id > 0) throw new Error("Invalid id")
-    const {mode, width, height, theme, format} = request.query
+    if (!Number.isInteger(id) || id <= 0) return reply.status(400).send({error: "Invalid id"});
 
-    await timelineChart(id, mode, Number(width || 800), Number(height || 300), theme || "dark")
-        .then(svgBuffer => format === "png"
-            ? reply.type("image/png").send(new Resvg(svgBuffer).render().asPng())
-            : reply.type("image/svg+xml").send(svgBuffer))
+    const {
+        mode = "week",
+        width = 800,
+        height = 300,
+        theme = "dark",
+        format = "svg",
+    } = request.query;
+
+    const cacheKey = `timeline:${id}:${mode}:${width}:${height}:${theme}:${format}`;
+
+    try {
+        const cachedImage = await server.redis.getBuffer(cacheKey);
+
+        if (cachedImage) {
+            server.log.info(`Cache hit for key: ${cacheKey}`);
+            return reply.type(format === "png" ? "image/png" : "image/svg+xml").send(cachedImage);
+        }
+
+        server.log.info(`Cache miss for key: ${cacheKey}`);
+
+        const svgBuffer = await timelineChart(id, mode, width, height, theme);
+        const resultBuffer: Buffer = format === "png" ? Buffer.from(new Resvg(svgBuffer).render().asPng()) : svgBuffer;
+
+        reply.type(format === "png" ? "image/png" : "image/svg+xml");
+
+        await server.redis.set(cacheKey, resultBuffer, "EX", 1800);
+
+        return reply.send(resultBuffer);
+    } catch (error) {
+        server.log.error(error);
+        return reply.status(500).send({error: "Internal Server Error"});
+    }
 })

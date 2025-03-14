@@ -4,6 +4,7 @@ import {swagger} from "./plugins/swagger";
 import {caching} from "./plugins/caching";
 import {swaggerUI} from "./plugins/swaggerUI";
 import {routing} from "./plugins/routing";
+import {redis} from "./plugins/redis";
 
 dotenv.config()
 
@@ -15,6 +16,7 @@ const server = fastify({
 caching(server)
 swagger(server)
 swaggerUI(server)
+redis(server)
 routing(server)
 
 server.listen({
