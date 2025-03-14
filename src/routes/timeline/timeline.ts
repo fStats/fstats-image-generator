@@ -1,7 +1,7 @@
 import {FastifyInstance} from "fastify";
 import {Format, Modes, Theme} from "../../util/types";
 import {timelineChart} from "../../util/chart/timeline";
-import svg2img from "svg2img";
+import {Resvg} from "@resvg/resvg-js";
 
 export const timelineById = (server: FastifyInstance) => server.get<{
     Querystring: {
@@ -77,17 +77,10 @@ export const timelineById = (server: FastifyInstance) => server.get<{
 }, async (request, reply) => {
     const id = Number(request.params.id)
     if (!Number.isInteger(id)) throw new Error("Invalid id")
-
     const {mode, width, height, theme, format} = request.query
 
-    await timelineChart(id, mode, Number(width || 800), Number(height || 300), theme || "dark").then(svgBuffer => {
-        console.log(svgBuffer)
-        if (format === "png") {
-            svg2img(svgBuffer.toString(), (error, buffer) => {
-                if (error) throw new Error("Can't generate png." + error)
-                return reply.type("image/png").send(buffer)
-            });
-        }
-        return reply.type("image/svg+xml").send(svgBuffer)
-    })
+    await timelineChart(id, mode, Number(width || 800), Number(height || 300), theme || "dark")
+        .then(svgBuffer => format === "png"
+            ? reply.type("image/png").send(new Resvg(svgBuffer).render().asPng())
+            : reply.type("image/svg+xml").send(svgBuffer))
 })
