@@ -18,8 +18,8 @@ swaggerUI(server)
 routing(server)
 
 server.listen({
-    port: Number(process.env.PORT) || 1542,
-    host: process.env.HOST || "0.0.0.0"
+    host: process.env.HOST || "0.0.0.0",
+    port: Number(process.env.PORT) || 1542
 }, (err) => {
     if (err) {
         console.error(err)
