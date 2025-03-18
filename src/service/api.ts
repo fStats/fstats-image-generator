@@ -2,7 +2,7 @@ import {LineMetric, Project, TimelineData} from "./types";
 import axios from "axios";
 import {decodeLineMetric} from "../util/decoder/line";
 
-const host = process.env.REMOTE_HOST || "https://indev.fstats.dev/v3/"
+const host = process.env.REMOTE_HOST || "https://api.fstats.dev/v3/"
 
 export const getLineMetric = async (projectId: number): Promise<TimelineData[]> =>
     await axios.get<LineMetric>(`${host}metrics/${projectId}/line`)
