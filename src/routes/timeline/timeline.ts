@@ -1,5 +1,5 @@
 import {FastifyInstance} from "fastify";
-import {Format, Modes, Theme} from "../../util/types";
+import {Color, Format, Modes, Theme} from "../../util/types";
 import {timelineChart} from "../../util/chart/timeline";
 import {Resvg} from "@resvg/resvg-js";
 
@@ -8,6 +8,7 @@ export const timelineById = (server: FastifyInstance) => server.get<{
         mode: Modes,
         width: number,
         height: number,
+        color: Color,
         theme: Theme,
         format: Format
     }
@@ -41,6 +42,10 @@ export const timelineById = (server: FastifyInstance) => server.get<{
                 height: {
                     type: "integer",
                     default: 300
+                },
+                color: {
+                    type: "string",
+                    enum: ["alizarin", "carrot", "sun-flower", "emerald", "turquoise", "peter-river", "amethyst"]
                 },
                 theme: {
                     type: "string",
@@ -83,10 +88,11 @@ export const timelineById = (server: FastifyInstance) => server.get<{
         width = 800,
         height = 300,
         theme = "dark",
+        color = theme === "dark" ? "alizarin" : "peter-river",
         format = "svg",
     } = request.query;
 
-    const cacheKey = `timeline:${id}:${mode}:${width}:${height}:${theme}:${format}`;
+    const cacheKey = `timeline:${id}:${mode}:${width}:${height}:${color}:${theme}:${format}`;
 
     try {
         const cachedImage = await server.redis.getBuffer(cacheKey);
@@ -98,7 +104,7 @@ export const timelineById = (server: FastifyInstance) => server.get<{
 
         server.log.info(`Cache miss for key: ${cacheKey}`);
 
-        const svgBuffer = await timelineChart(id, mode, width, height, theme);
+        const svgBuffer = await timelineChart(id, mode, width, height, color, theme);
         const resultBuffer: Buffer = format === "png" ? Buffer.from(new Resvg(svgBuffer).render().asPng()) : svgBuffer;
 
         reply.type(format === "png" ? "image/png" : "image/svg+xml");

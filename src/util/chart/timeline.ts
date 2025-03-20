@@ -2,9 +2,10 @@ import {ChartJSNodeCanvas} from "chartjs-node-canvas";
 import "chartjs-adapter-moment";
 import {getLineMetric, getProject} from "../../service/api";
 import {timeLimit, timeUnit} from "../mode";
-import {Modes, Theme} from "../types";
+import {Color, Modes, Theme} from "../types";
+import {nameToColor} from "../decoder/color";
 
-export const timelineChart = async (projectId: number, mode: Modes, width: number, height: number, theme: Theme): Promise<Buffer> => {
+export const timelineChart = async (projectId: number, mode: Modes, width: number, height: number, color: Color, theme: Theme): Promise<Buffer> => {
 
     const project = await getProject(projectId)
     const lineMetric = await getLineMetric(projectId)
@@ -24,7 +25,7 @@ export const timelineChart = async (projectId: number, mode: Modes, width: numbe
                 {
                     data: lineMetric,
                     label: "Server count",
-                    borderColor: theme === "dark" ? "rgb(231, 76, 60)" : "rgb(52, 152, 219)",
+                    borderColor: nameToColor(color),
                     spanGaps: 1000 * 60 * 30,
                     borderWidth: 2,
                     pointRadius: 0
