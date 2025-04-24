@@ -4,11 +4,54 @@ import {getLineMetric, getProject} from "../../service/api";
 import {timeLimit, timeUnit} from "../mode";
 import {Color, Modes, Theme} from "../types";
 import {nameToColor} from "../decoder/color";
+import {mergeData} from "../merge";
+import {ChartDataset} from "chart.js";
 
-export const timelineChart = async (projectId: number, mode: Modes, width: number, height: number, color: Color, theme: Theme): Promise<Buffer> => {
+export const timelineChart = async (
+    projectId: number,
+    mode: Modes,
+    width: number,
+    height: number,
+    theme: Theme,
+    clientColor?: Color,
+    serverColor?: Color,
+    mixedColor?: Color
+): Promise<Buffer> => {
 
     const project = await getProject(projectId)
-    const lineMetric = await getLineMetric(projectId)
+
+    const serverLineMetric = serverColor || mixedColor ? await getLineMetric(projectId, true, timeLimit(mode)) : []
+    const clientLineMetric = clientColor || mixedColor ? await getLineMetric(projectId, false, timeLimit(mode)) : []
+    const mixedLineMetric = mixedColor ? mergeData(clientLineMetric, serverLineMetric) : []
+
+    const datasets: ChartDataset<'line'>[] = [];
+
+    serverColor && datasets.push({
+        data: serverLineMetric,
+        label: "Servers",
+        borderColor: nameToColor(serverColor),
+        spanGaps: 1000 * 60 * 30,
+        borderWidth: 2,
+        pointRadius: 0
+    });
+
+    clientColor && datasets.push({
+        data: clientLineMetric,
+        label: "Clients",
+        borderColor: nameToColor(clientColor),
+        spanGaps: 1000 * 60 * 30,
+        borderWidth: 2,
+        pointRadius: 0
+    });
+
+    mixedColor && datasets.push({
+        data: mixedLineMetric,
+        label: "Mixed",
+        borderColor: nameToColor(mixedColor),
+        spanGaps: 1000 * 60 * 30,
+        borderWidth: 2,
+        pointRadius: 0
+    });
 
     return new ChartJSNodeCanvas({
         width: width,
@@ -21,16 +64,7 @@ export const timelineChart = async (projectId: number, mode: Modes, width: numbe
     }).renderToBufferSync({
         type: 'line',
         data: {
-            datasets: [
-                {
-                    data: lineMetric,
-                    label: "Server count",
-                    borderColor: nameToColor(color),
-                    spanGaps: 1000 * 60 * 30,
-                    borderWidth: 2,
-                    pointRadius: 0
-                }
-            ]
+            datasets: datasets
         },
         options: {
             scales: {

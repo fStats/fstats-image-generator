@@ -4,8 +4,8 @@ import {decodeLineMetric} from "../util/decoder/line";
 
 const host = process.env.REMOTE_HOST || "https://api.fstats.dev/v3/"
 
-export const getLineMetric = async (projectId: number): Promise<TimelineData[]> =>
-    await axios.get<LineMetric>(`${host}metrics/${projectId}/line`)
+export const getLineMetric = async (projectId: number, serverSide: boolean, from?: number): Promise<TimelineData[]> =>
+    await axios.get<LineMetric>(`${host}metrics/${projectId}/line?server_side=${serverSide}${(from !== undefined && from > 0) ? `&from=${from / 1000}` : ""}`)
         .then(value => decodeLineMetric(value.data))
         .catch(reason => {
             throw new Error(reason)

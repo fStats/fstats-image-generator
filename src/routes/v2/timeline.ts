@@ -8,9 +8,11 @@ export const timelineById = (server: FastifyInstance) => server.get<{
         mode: Modes,
         width: number,
         height: number,
-        color: Color,
         theme: Theme,
-        format: Format
+        format: Format,
+        server_color: Color,
+        client_color: Color,
+        mixed_color: Color,
     }
     Params: {
         id: number
@@ -43,10 +45,6 @@ export const timelineById = (server: FastifyInstance) => server.get<{
                     type: "integer",
                     default: 300
                 },
-                color: {
-                    type: "string",
-                    enum: ["alizarin", "carrot", "sun-flower", "emerald", "turquoise", "peter-river", "amethyst"]
-                },
                 theme: {
                     type: "string",
                     enum: ["dark", "light"],
@@ -56,6 +54,18 @@ export const timelineById = (server: FastifyInstance) => server.get<{
                     type: "string",
                     enum: ["svg", "png"],
                     default: "svg"
+                },
+                server_color: {
+                    type: "string",
+                    enum: ["alizarin", "carrot", "sun-flower", "emerald", "turquoise", "peter-river", "amethyst"]
+                },
+                client_color: {
+                    type: "string",
+                    enum: ["alizarin", "carrot", "sun-flower", "emerald", "turquoise", "peter-river", "amethyst"]
+                },
+                mixed_color: {
+                    type: "string",
+                    enum: ["alizarin", "carrot", "sun-flower", "emerald", "turquoise", "peter-river", "amethyst"]
                 }
             }
         },
@@ -76,6 +86,9 @@ export const timelineById = (server: FastifyInstance) => server.get<{
                         }
                     }
                 }
+            },
+            500: {
+                description: "Internal Server Error",
             }
         }
     }
@@ -88,11 +101,13 @@ export const timelineById = (server: FastifyInstance) => server.get<{
         width = 800,
         height = 300,
         theme = "dark",
-        color = theme === "dark" ? "alizarin" : "peter-river",
         format = "svg",
+        server_color,
+        client_color,
+        mixed_color
     } = request.query;
 
-    const cacheKey = `timeline:${id}:${mode}:${width}:${height}:${color}:${theme}:${format}`;
+    const cacheKey = `timeline:${id}:${mode}:${width}:${height}:${server_color}:${client_color}:${mixed_color}:${theme}:${format}`;
 
     try {
         const cachedImage = await server.redis.getBuffer(cacheKey);
@@ -104,7 +119,7 @@ export const timelineById = (server: FastifyInstance) => server.get<{
 
         server.log.info(`Cache miss for key: ${cacheKey}`);
 
-        const svgBuffer = await timelineChart(id, mode, width, height, color, theme);
+        const svgBuffer = await timelineChart(id, mode, width, height, theme, client_color, server_color, mixed_color);
         const resultBuffer: Buffer = format === "png" ? Buffer.from(new Resvg(svgBuffer).render().asPng()) : svgBuffer;
 
         reply.type(format === "png" ? "image/png" : "image/svg+xml");
