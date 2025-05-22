@@ -39,7 +39,15 @@ async function main() {
         process.exit(1);
     }
     console.log(`Logging in to docker registry at ${hostname}`);
-    execSync(`docker login ${hostname} -u ${username} -p ${password}`, {stdio: 'inherit'});
+    const login = spawnSync(
+        'docker',
+        ['login', hostname, '-u', username, '--password-stdin'],
+        {input: password, stdio: ['pipe', 'inherit', 'inherit']}
+    );
+    if (login.status !== 0) {
+        console.error('docker login failed');
+        process.exit(1);
+    }
 
     const remoteImageBase = `${hostname}/${namespace}/${project}`;
 
