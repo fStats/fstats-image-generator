@@ -2,6 +2,7 @@ import fs from 'fs';
 import {execSync} from 'child_process';
 import path from 'path';
 import dotenv from 'dotenv';
+import {spawnSync} from "node:child_process";
 
 dotenv.config();
 

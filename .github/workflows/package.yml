@@ -1,0 +1,65 @@
+name: Package Container
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'package.json'
+      - 'CHANGELOG.md'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOCKER_HOSTNAME: ghcr.io
+  DOCKER_USERNAME: ${{ github.actor }}
+  DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: |
+          echo "::set-output name=version::$(jq -r .version package.json)"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Push Docker image
+        run: npm run docker:build
+
+      - name: Notify Discord
+        run: |
+          CHANGELOG=$(cat CHANGELOG.md)
+          MESSAGE="# fStats IG - ${{ steps.get_version.outputs.version }}"$'\n'"\
+          $CHANGELOG"
+          
+          jq -n --arg content "$MESSAGE" '{content: $content}' > payload.json
+          
+          curl -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d @payload.json \
+               "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages"
