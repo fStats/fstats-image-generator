@@ -1,4 +1,3 @@
-import {ChartJSNodeCanvas} from "chartjs-node-canvas";
 import "chartjs-adapter-moment";
 import {getLineMetric, getProject} from "../../service/api";
 import {timeLimit, timeUnit} from "../mode";
@@ -6,6 +5,7 @@ import {Color, Modes, Theme} from "../types";
 import {nameToColor} from "../decoder/color";
 import {mergeData} from "../merge";
 import {ChartDataset} from "chart.js";
+import {getChart} from "./chart";
 
 export const timelineChart = async (
     projectId: number,
@@ -53,15 +53,7 @@ export const timelineChart = async (
         pointRadius: 0
     });
 
-    return new ChartJSNodeCanvas({
-        width: width,
-        height: height,
-        backgroundColour: theme === "dark" ? "rgb(30, 30, 30)" : "rgb(255, 255, 255)",
-        type: "svg",
-        plugins: {
-            globalVariableLegacy: ["chartjs-adapter-moment"]
-        }
-    }).renderToBufferSync({
+    return getChart(width, height, theme).renderToBufferSync({
         type: 'line',
         data: {
             datasets: datasets
